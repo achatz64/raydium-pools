@@ -49,10 +49,6 @@ export async function parsePoolInfo() {
   if (!info) return;
 
   const poolState = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
-  
-
-  const baseDecimal = 10 ** poolState.baseDecimal.toNumber(); // e.g. 10 ^ 6
-  const quoteDecimal = 10 ** poolState.quoteDecimal.toNumber();
 
   const baseTokenAmount = await connection.getTokenAccountBalance(
     poolState.baseVault
@@ -61,15 +57,6 @@ export async function parsePoolInfo() {
     poolState.quoteVault
   );
 
-  const basePnl = poolState.baseNeedTakePnl.toNumber() / baseDecimal;
-  const quotePnl = poolState.quoteNeedTakePnl.toNumber() / quoteDecimal;
-
-  
-  const denominator = new BN(10).pow(poolState.baseDecimal);
-
-  const addedLpAccount = tokenAccounts.find((a) =>
-    a.accountInfo.mint.equals(poolState.lpMint)
-  );
 
   let spotSprice : Number = 0;
 
@@ -79,7 +66,8 @@ export async function parsePoolInfo() {
 
   let out = {
     "token_account_ids": [poolState.baseVault, poolState.quoteVault],
-    "amounts": [poolState.baseNeedTakePnl.toNumber(), poolState.quoteNeedTakePnl.toNumber()],
+    "amounts": [baseTokenAmount.value.amount, quoteTokenAmount.value.amount],
+    "spot_price": spotSprice,
     "decimals": [poolState.baseDecimal.toNumber(), poolState.quoteDecimal.toNumber()]
   }
 
