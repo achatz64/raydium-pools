@@ -1,6 +1,7 @@
 ### Dependencies
 
 `npm install @raydium-io/raydium-sdk --save`
+`npm install @project-serum/serum`
 
 ### Compile
 
